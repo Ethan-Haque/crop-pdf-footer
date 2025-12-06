@@ -1,0 +1,18 @@
+import pikepdf
+
+def crop_footer(input_pdf, output_pdf, footer_height=60):
+    pdf = pikepdf.Pdf.open(input_pdf)
+
+    for page in pdf.pages:
+        mediabox = page.MediaBox
+        # Reduce the height by removing the bottom portion
+        mediabox[1] = mediabox[1] + footer_height
+
+    pdf.save(output_pdf)
+    print(f"Cleaned {input_pdf} to {output_pdf}")
+
+input_pdf = input("Enter input PDF file name: ")
+output_pdf = input("Enter output PDF file name: ")
+footer_height = int(input("Enter footer height (Default 50): "))
+
+crop_footer(input_pdf, output_pdf, footer_height)
