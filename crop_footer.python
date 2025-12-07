@@ -1,18 +1,45 @@
 import pikepdf
+import os
+import sys
+
 
 def crop_footer(input_pdf, output_pdf, footer_height=60):
-    pdf = pikepdf.Pdf.open(input_pdf)
+    if not os.path.exists(input_pdf):
+        print(f"Error: Input file '{input_pdf}' not found.")
+        return False
 
-    for page in pdf.pages:
-        mediabox = page.MediaBox
-        # Reduce the height by removing the bottom portion
-        mediabox[1] = mediabox[1] + footer_height
+    try:
+        with pikepdf.Pdf.open(input_pdf) as pdf:
+            for page in pdf.pages:
+                mediabox = page.MediaBox
+                # Reduce the height by removing the bottom portion
+                mediabox[1] = mediabox[1] + footer_height
 
-    pdf.save(output_pdf)
-    print(f"Cleaned {input_pdf} to {output_pdf}")
+            pdf.save(output_pdf)
+        print(f"Successfully cropped {input_pdf} -> {output_pdf}")
+        return True
+    except Exception as e:
+        print(f"Error processing PDF: {e}")
+        return False
 
-input_pdf = input("Enter input PDF file name: ")
-output_pdf = input("Enter output PDF file name: ")
-footer_height = int(input("Enter footer height (Default 50): "))
 
-crop_footer(input_pdf, output_pdf, footer_height)
+def main():
+    try:
+        input_pdf = input("Enter input PDF file name: ").strip()
+        output_pdf = input("Enter output PDF file name: ").strip()
+        
+        footer_input = input("Enter footer height (Default 60): ").strip()
+        footer_height = int(footer_input) if footer_input else 60
+
+        success = crop_footer(input_pdf, output_pdf, footer_height)
+        sys.exit(0 if success else 1)
+    except ValueError:
+        print("Error: Footer height must be a valid integer.")
+        sys.exit(1)
+    except KeyboardInterrupt:
+        print("\nOperation cancelled.")
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
